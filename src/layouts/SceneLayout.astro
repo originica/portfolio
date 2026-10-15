@@ -1,0 +1,46 @@
+---
+import { ClientRouter } from "astro:transitions";
+import SceneCanvas from "../components/SceneCanvas.astro";
+
+// src/layouts/SceneLayout.astro
+
+interface Props {
+    title: string;
+    station: "intro" | "about";
+}
+
+const { title, station } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <title>{title}</title>
+        <ClientRouter />
+    </head>
+    <body data-station={station}>
+        <SceneCanvas />
+        <main><slot /></main>
+    </body>
+</html>
+
+<style is:global>
+    html,
+    body {
+        margin: 0;
+        height: 100%;
+    }
+
+    body {
+        background: #efe9d8;
+    }
+
+    main {
+        position: relative;
+        z-index: 1;
+        display: flow-root;
+    }
+</style>

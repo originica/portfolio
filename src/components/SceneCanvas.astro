@@ -1,0 +1,81 @@
+---
+// src/components/SceneCanvas.astro
+---
+
+<div class="scene" transition:persist="scene">
+    <canvas id="scene"></canvas>
+</div>
+
+<script>
+    const getStation = () => {
+        return document.body.dataset.station;
+    };
+
+    async function loadScene(canvas: HTMLCanvasElement) {
+        try {
+            const { initScene } = await import("../scene");
+            return await initScene(canvas);
+        } catch (err) {
+            console.error("3D scene unavailable", err);
+            return null;
+        }
+    }
+
+    async function start() {
+        const canvas = document.getElementById("scene");
+
+        if (!(canvas instanceof HTMLCanvasElement)) {
+            console.error("Canvas element not found");
+            return;
+        }
+
+        const scene = await loadScene(canvas);
+        if (!scene) {
+            return;
+        }
+        scene.goToStation(getStation(), { instant: true });
+        canvas.classList.add("is-ready");
+
+        let currentStation = getStation();
+
+        document.addEventListener("astro:page-load", () => {
+            const station = getStation();
+            if (currentStation === station) {
+                return;
+            }
+
+            scene.goToStation(station);
+            currentStation = station;
+        });
+    }
+
+    start();
+</script>
+
+<style>
+    .scene {
+        position: fixed;
+        inset: 0;
+    }
+
+    canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    .scene .is-ready {
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        canvas {
+            transition: none;
+        }
+    }
+</style>
